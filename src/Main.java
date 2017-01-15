@@ -1,12 +1,16 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +48,8 @@ public class Main extends JFrame implements ActionListener {
 		
 		//Sets up the JLabel for incorrect guesses
 		wrongGuesses.setForeground(Color.RED);
-		wrongGuesses.setBounds(width-180, 350, 200, 50);
+		wrongGuesses.setBounds(width-280, 350, 270, 50);
+		wrongGuesses.setFont(new Font("Ariel", Font.PLAIN, 24));
 		back.add(wrongGuesses);
 		
 		// Enter a guess label and construction
@@ -58,6 +63,7 @@ public class Main extends JFrame implements ActionListener {
 		guess.addActionListener(action);
 		guess.setBackground(Color.decode("#F9F28A"));
 		guess.setEditable(true);
+		guess.addKeyListener(key);
 		guess.setBounds(width - 175, 180, 70, 20);
 		back.add(guess);
 
@@ -121,11 +127,11 @@ public class Main extends JFrame implements ActionListener {
 				System.out.println("YOU LOSE");
 			} else {
 				wrongGuessesList +=g;
+				wrongGuessesList+="  ";
 				wrongGuesses.setText(wrongGuessesList);
 				LoadImage b = new LoadImage(pics.get(wrong));
 				pic.setIcon(b);
 				pic.setBounds(135, 120, 300, 300);
-				//f.setComponentZOrder(pic, wrong);
 				back.add(pic);
 				wrong++;
 			}
@@ -143,6 +149,14 @@ public class Main extends JFrame implements ActionListener {
 			guess(guessLetter);
 		}
 	};
+	
+	KeyAdapter key = new KeyAdapter(){
+		public void keyTyped(KeyEvent e) { 
+	        if (guess.getText().length() >= 1 ) // limit textfield to 1 characters
+	            e.consume(); 
+	    }  
+	};
+	
 
 	public static void main(String[] args) {
 		Main game = new Main();
@@ -152,4 +166,5 @@ public class Main extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// This doesnt do anything
 	}
+
 }

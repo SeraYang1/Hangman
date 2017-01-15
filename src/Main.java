@@ -1,6 +1,9 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,11 +21,13 @@ import javax.swing.WindowConstants;
 
 public class Main extends JFrame implements ActionListener {
 	public JFrame f = new JFrame("HANGMAN");
-	public String word, guessLetter;
-	public int wordLen, height, width, pos = 0;
-	public JLabel back;
+	public String word, guessLetter, wrongGuessesList="";
+	public int wordLen, height, width, right = 0, wrong = 0;
+	public JLabel back,pic=new JLabel(), wrongGuesses= new JLabel();
 	public JTextField guess;
-	public ArrayList<String> wordArray=new ArrayList<String>(), pics = new ArrayList<String>(Arrays.asList("Head", "Body", "LeftArm","RightArm","Legs","Eyes","Mouth","LeftHand","RightHand","LeftFoot","RightFoot"));
+	public ArrayList<String> wordArray = new ArrayList<String>(), pics = new ArrayList<String>(
+			Arrays.asList("Head.jpg", "Body.jpg", "Arms.jpg", "Legs.jpg", "Eyes.jpg",
+					"Mouth.jpg", "Hands.jpg", "Feet.jpg"));
 
 	public Main() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -32,22 +37,28 @@ public class Main extends JFrame implements ActionListener {
 		back = new JLabel(background);
 		width = background.getIconWidth();
 		height = background.getIconHeight();
-		f.setSize(new Dimension(width + 210, height + 20));
+		f.setSize(new Dimension(width, height));
 		f.getContentPane().setBackground(Color.WHITE);
+		f.setLayout(new GridBagLayout());
 		f.add(back);
-
+		
+		//Sets up the JLabel for incorrect guesses
+		wrongGuesses.setForeground(Color.RED);
+		wrongGuesses.setBounds(width-180, 350, 200, 50);
+		back.add(wrongGuesses);
+		
 		// Enter a guess label and construction
 		JLabel enterGuess = new JLabel("Enter a guess:");
 		enterGuess.setForeground(Color.BLACK);
-		enterGuess.setBounds(width + 20, 150, 100, 10);
+		enterGuess.setBounds(width - 180, 150, 100, 15);
 		back.add(enterGuess);
 
 		// User inputs guess textfield
-		guess = new JTextField();
+		guess = new JTextField(wrongGuessesList);
 		guess.addActionListener(action);
 		guess.setBackground(Color.decode("#F9F28A"));
 		guess.setEditable(true);
-		guess.setBounds(width + 25, 180, 70, 20);
+		guess.setBounds(width - 175, 180, 70, 20);
 		back.add(guess);
 
 		// Sets up gameplay
@@ -57,10 +68,9 @@ public class Main extends JFrame implements ActionListener {
 		// Errortesting
 		JLabel w = new JLabel(word);
 		w.setForeground(Color.BLACK);
-		w.setBounds(width, 60, 150, 13);
+		w.setBounds(width - 150, 60, 150, 15);
 		back.add(w);
 
-		//f.pack();
 		f.setVisible(true);
 	}
 
@@ -71,42 +81,58 @@ public class Main extends JFrame implements ActionListener {
 		String temp = (String) (dict.get(pos));
 		word = temp;
 		wordLen = temp.length();
-		for(int x=0;x<wordLen;x++)
-		{
-			wordArray.add(word.charAt(x)+"");
+		for (int x = 0; x < wordLen; x++) {
+			wordArray.add(word.charAt(x) + "");
 		}
 	}
 
 	public void drawLines() {
-		int len = (int) (150 / wordLen - 5);
+		int len = (int) (250 / wordLen);
 		for (int x = 0; x < wordLen; x++) {
 			LoadImage lineImg = new LoadImage("line.jpg");
 			JLabel line = new JLabel(lineImg);
-			line.setBounds(width + x * len + x * 50 / len, 100, len, 2);
+			line.setBounds((int) (width - 250 + x * len), 100, (int) (5 * len / 6), 2);
 			back.add(line);
 		}
 	}
 
 	public void guess(String g) {
-		int len = (int) (150 / wordLen - 5);
-		if (word.contains(g))
-		{
-			for(int x=0;x<wordLen;x++)
-			{
-				if(wordArray.get(x).equals(g))
-				{
+		int len = (int) (250 / wordLen);
+		if (word.contains(g)) {
+			for (int x = 0; x < wordLen; x++) {
+				if (wordArray.get(x).equals(g)) {
+					// TODO font size doesnt match up
+					int fontSize = 360 / wordLen;
 					System.out.println(g);
 					JLabel c = new JLabel(g);
 					c.setForeground(Color.BLACK);
-					//c.setBounds(10, 10, 80, 80);
-					c.setBounds(width + x * len + x * 50 / len, 89, len, 10);
+					c.setFont(c.getFont().deriveFont(fontSize));
+					c.setVisible(true);
+					c.setBounds((int) (width - 250 + x * len), 89, (int) (5 * len / 6), 10);
 					back.add(c);
+					right++;
 				}
 			}
+			if (right == wordLen) {
+				System.out.println("YOU WIN");
+			}
+		} else {
+			if (wrong == pics.size()) {
+				System.out.println("YOU LOSE");
+			} else {
+				wrongGuessesList +=g;
+				wrongGuesses.setText(wrongGuessesList);
+				LoadImage b = new LoadImage(pics.get(wrong));
+				pic.setIcon(b);
+				pic.setBounds(135, 120, 300, 300);
+				//f.setComponentZOrder(pic, wrong);
+				back.add(pic);
+				wrong++;
+			}
 		}
-		
-		//f.setPreferredSize(new Dimension(width + 210, height + 20));
-		f.pack();
+
+		f.revalidate();
+		f.repaint();
 	}
 
 	ActionListener action = new ActionListener() {
@@ -124,6 +150,6 @@ public class Main extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// Already have an action listener
+		// This doesnt do anything
 	}
 }

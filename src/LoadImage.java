@@ -13,6 +13,12 @@ public class LoadImage extends JComponent implements Icon {
 		g.drawImage(img, 0, 0, null);
 	}
 
+	/**
+	 * Loads in the file and sets it as the image.
+	 * 
+	 * @param name
+	 *            String name of file
+	 */
 	public LoadImage(String name) {
 		try {
 			img = ImageIO.read(new File(name));
